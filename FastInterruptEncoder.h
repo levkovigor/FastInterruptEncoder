@@ -15,7 +15,7 @@ typedef enum {
 class Encoder
 {
   public:
-    Encoder(int pinA, int pinB, encoder_mode_t mode = SINGLE);
+    Encoder(int pinA, int pinB, encoder_mode_t mode = SINGLE, uint8_t filter = 0);
 	bool init();
 	void loop();
 	int32_t getTicks();
@@ -27,6 +27,7 @@ class Encoder
 	encoder_mode_t _mode = SINGLE;
 	int32_t _ticks = 0;
 	int32_t _prevTicks = 0;
+	uint8_t _filter = 0;
 };
 
 #endif // __FASTINTERRUPTENCODER_H__

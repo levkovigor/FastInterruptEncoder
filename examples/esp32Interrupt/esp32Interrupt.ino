@@ -1,7 +1,7 @@
 #include "FastInterruptEncoder.h"
 
-//Encoder enc(PA0, PA1, SINGLE /* or HALFQUAD or FULLQUAD */); // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
-Encoder enc(25, 26, SINGLE); // - Example for ESP32
+//Encoder enc(PA0, PA1, SINGLE /* or HALFQUAD or FULLQUAD */, 250 /* Noise and Debounce Filter (default 0) */); // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
+Encoder enc(25, 26, SINGLE, 250); // - Example for ESP32
 
 unsigned long encodertimer = 0;
 

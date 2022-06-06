@@ -1,10 +1,11 @@
 #include "Arduino.h"
 #include "FastInterruptEncoder.h"
 
-Encoder::Encoder(int pinA, int pinB, encoder_mode_t mode){
+Encoder::Encoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter){
 	_pinA = pinA;
 	_pinB = pinB;
 	_mode = mode;	
+	_filter = filter;
 }
 
 #if defined(ESP32)
@@ -79,7 +80,7 @@ Encoder::Encoder(int pinA, int pinB, encoder_mode_t mode){
 	  pcnt_unit_config(&r_enc_config);
 
 	  // Filter out bounces and noise
-	  pcnt_set_filter_value(unit, 250);
+	  pcnt_set_filter_value(unit, _filter);
 	  pcnt_filter_enable(unit); 
 
 	  /* Enable events on maximum and minimum limit values */
@@ -143,12 +144,12 @@ Encoder::Encoder(int pinA, int pinB, encoder_mode_t mode){
 	   sEncoderConfig.IC1Polarity             = TIM_ICPOLARITY_RISING;
 	   sEncoderConfig.IC1Selection            = TIM_ICSELECTION_DIRECTTI;
 	   sEncoderConfig.IC1Prescaler            = TIM_ICPSC_DIV1;
-	   sEncoderConfig.IC1Filter               = 0;
+	   sEncoderConfig.IC1Filter               = _filter;
 	
 	   sEncoderConfig.IC2Polarity             = TIM_ICPOLARITY_RISING;
 	   sEncoderConfig.IC2Selection            = TIM_ICSELECTION_DIRECTTI;
 	   sEncoderConfig.IC2Prescaler            = TIM_ICPSC_DIV1;
-	   sEncoderConfig.IC2Filter               = 0;
+	   sEncoderConfig.IC2Filter               = _filter;
 		
 	   Encoder_Handle.Instance = (TIM_TypeDef *)pinmap_peripheral(digitalPinToPinName(_pinA), PinMap_TIM);
 	   enableTimerClock(&Encoder_Handle);
