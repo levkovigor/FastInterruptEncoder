@@ -107,7 +107,11 @@ Encoder::Encoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter){
 	  if ((_prevTicks+c) != _prevTicks){
 		  pcnt_counter_clear(unit);
 		 _prevTicks = _prevTicks+c;
-		  _ticks += _prevTicks;
+		  if (_invert){
+		  	_ticks -= _prevTicks;
+		  } else {
+			_ticks += _prevTicks;
+		  }
 		  _prevTicks = 0; 
 	  }
 	}
@@ -161,10 +165,14 @@ Encoder::Encoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter){
 	void Encoder::loop(){
 	  int c = LL_TIM_GetCounter((TIM_TypeDef *)pinmap_peripheral(digitalPinToPinName(_pinA), PinMap_TIM));
 	  int change = c - _prevTicks;
-      _prevTicks = c; 
-      if (change > 40000) { change = 65535 - change;}
-      else if (change < -40000) {change = -65535 - change;}
-      _ticks += change;
+          _prevTicks = c; 
+          if (change > 40000) { change = 65535 - change;}
+          else if (change < -40000) {change = -65535 - change;}
+          if (_invert){
+	  	_ticks -= change;
+	  } else {
+		_ticks += change;
+	  }
 	}
 
 #endif
@@ -177,4 +185,8 @@ int32_t Encoder::getTicks(){
 
 void Encoder::resetTicks(){
 	_ticks = 0;
+}
+
+void Encoder::setInvert(bool invert){
+	_invert = invert;
 }
