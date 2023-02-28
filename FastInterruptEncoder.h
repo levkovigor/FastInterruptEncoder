@@ -20,6 +20,7 @@ class Encoder
 	void loop();
 	int32_t getTicks();
 	void resetTicks();
+	void setInvert(bool invert = true);
 	
   private:
 	int _pinA;
@@ -28,6 +29,7 @@ class Encoder
 	int32_t _ticks = 0;
 	int32_t _prevTicks = 0;
 	uint8_t _filter = 0;
+	bool _invert = false;
 };
 
 #endif // __FASTINTERRUPTENCODER_H__
