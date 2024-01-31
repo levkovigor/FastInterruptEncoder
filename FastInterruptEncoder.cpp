@@ -8,6 +8,17 @@ Encoder::Encoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter){
 	_filter = filter;
 }
 
+Encoder::Encoder(){
+	
+}
+
+void Encoder::setEncoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter){
+	_pinA = pinA;
+	_pinB = pinB;
+	_mode = mode;	
+	_filter = filter;
+}
+
 #if defined(ESP32)
 	
 	#include <soc/pcnt_struct.h>
