@@ -15,7 +15,9 @@ typedef enum {
 class Encoder
 {
   public:
-    Encoder(int pinA, int pinB, encoder_mode_t mode = SINGLE, uint8_t filter = 0);
+	Encoder();
+    	Encoder(int pinA, int pinB, encoder_mode_t mode = SINGLE, uint8_t filter = 0);
+	void setEncoder(int pinA, int pinB, encoder_mode_t mode = SINGLE, uint8_t filter = 0);
 	bool init();
 	void loop();
 	int32_t getTicks();
