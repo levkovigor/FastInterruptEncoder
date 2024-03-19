@@ -19,31 +19,30 @@ void Encoder::setEncoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter
 	_filter = filter;
 }
 
+
 #if defined(ESP32)
 	
-	#include <soc/pcnt_struct.h>
-	#include <driver/gpio.h>
-	#include <driver/pcnt.h>
-	
+	static bool isrRegistered = false;
 	static  pcnt_isr_handle_t user_isr_handle;
 	pcnt_config_t r_enc_config;
-	pcnt_unit_t unit;
 	
 	static void IRAM_ATTR pcnt_example_intr_handler(void *arg) {
 	  uint32_t intr_status = PCNT.int_st.val;
 	  int i = 0;
-	  if (intr_status & (BIT(i))) {
-		  if(PCNT.status_unit[i].h_lim_lat){ }
-		  if(PCNT.status_unit[i].l_lim_lat){ }
-		  PCNT.int_clr.val = BIT(i);
-	   }
+	  for (int i = 0; i < PCNT_UNIT_MAX; i++) {
+		if (intr_status & (BIT(i))) {
+			  if(PCNT.status_unit[i].h_lim_lat){ }
+			  if(PCNT.status_unit[i].l_lim_lat){ }
+			  PCNT.int_clr.val = BIT(i);
+		 }
+	  }
 	}
 	
-	bool Encoder::init(){
+	bool Encoder::init(uint8_t unitNum){
 	  pinMode(_pinA, INPUT_PULLUP);
 	  pinMode(_pinB, INPUT_PULLUP);
 
-	  unit = (pcnt_unit_t) 0;
+	  unit = (pcnt_unit_t) unitNum;
 	  
 	  r_enc_config.pulse_gpio_num = (gpio_num_t) _pinA;
 	  r_enc_config.ctrl_gpio_num = (gpio_num_t) _pinB;   
@@ -51,6 +50,7 @@ void Encoder::setEncoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter
 	  r_enc_config.unit = unit;
 	  r_enc_config.channel = PCNT_CHANNEL_0;
 	  
+	  Serial.println("UNIT" + String(unitNum));
 	  	  
 	  if (_mode == SINGLE) {
 		  r_enc_config.pos_mode = PCNT_COUNT_DIS;
@@ -102,9 +102,14 @@ void Encoder::setEncoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter
 	  pcnt_counter_clear(unit);
 	  
 	  /* Register ISR handler and enable interrupts for PCNT unit */
-	  esp_err_t er = pcnt_isr_register(pcnt_example_intr_handler,(void *) NULL, (int)0, NULL);
-	  if (er != ESP_OK){
-		  return 0;
+	  if (!isrRegistered) {
+	        esp_err_t er = pcnt_isr_register(pcnt_example_intr_handler, (void*) NULL, 0, &user_isr_handle);
+	        if (er == ESP_OK) {
+	            isrRegistered = true; // Set flag to prevent further ISR registration
+	        } else {
+	            // Handle error (for instance, by returning false to indicate failure)
+	            return false;
+	        }
 	  }
 	  pcnt_intr_enable(unit);
 	  pcnt_counter_resume(unit);
@@ -129,7 +134,7 @@ void Encoder::setEncoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter
 	
 #elif defined(_STM32_DEF_)
 	
-	bool Encoder::init(){
+	bool Encoder::init(uint8_t unitNum){
 	   pinMode(_pinA, INPUT_PULLUP);
 	   pinMode(_pinB, INPUT_PULLUP);
 	   
