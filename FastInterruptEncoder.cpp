@@ -49,9 +49,7 @@ void Encoder::setEncoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter
 
 	  r_enc_config.unit = unit;
 	  r_enc_config.channel = PCNT_CHANNEL_0;
-	  
-	  Serial.println("UNIT" + String(unitNum));
-	  	  
+	  	  	  
 	  if (_mode == SINGLE) {
 		  r_enc_config.pos_mode = PCNT_COUNT_DIS;
 	  } else {
