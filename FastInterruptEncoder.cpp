@@ -21,7 +21,16 @@ void Encoder::setEncoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter
 
 
 #if defined(ESP32)
-	
+
+	// Compile time issues on ESP32S2/3 with h_lim_lat and l_lim_lat being redifined
+	#if defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32S3)
+        #define COUNTER_H_LIM cnt_thr_h_lim_lat_un
+        #define COUNTER_L_LIM cnt_thr_l_lim_lat_un
+    #else  
+        #define COUNTER_H_LIM h_lim_lat
+        #define COUNTER_L_LIM l_lim_lat
+    #endif
+
 	static bool isrRegistered = false;
 	static  pcnt_isr_handle_t user_isr_handle;
 	pcnt_config_t r_enc_config;
@@ -31,8 +40,8 @@ void Encoder::setEncoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter
 	  int i = 0;
 	  for (int i = 0; i < PCNT_UNIT_MAX; i++) {
 		if (intr_status & (BIT(i))) {
-			  if(PCNT.status_unit[i].h_lim_lat){ }
-			  if(PCNT.status_unit[i].l_lim_lat){ }
+			  if(PCNT.status_unit[i].COUNTER_H_LIM){ }
+			  if(PCNT.status_unit[i].COUNTER_L_LIM{ }
 			  PCNT.int_clr.val = BIT(i);
 		 }
 	  }
